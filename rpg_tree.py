@@ -1,37 +1,61 @@
 class StoryNode:
     """Represents a node in the decision tree."""
     def __init__(self, event_number, description, left=None, right=None):
-        print(f"TODO: Initialize StoryNode with event_number={event_number}, description={description}")
-        # TODO: Initialize instance variables (event_number, description, left, right)
+        self.event_number = event_number
+        self.description = description
+        self.left = left
+        self.right = right
 
 class GameDecisionTree:
     """Binary decision tree for the RPG."""
     def __init__(self):
-        print("TODO: Initialize an empty decision tree")
-        # TODO: Initialize an empty dictionary to store nodes
-        # TODO: Set root to None
+        self.nodes = {}
+        self.root = None
 
-    def insert(self, event_number, description, left_event, right_event):
+    def insert(self, event_number, description, left_event=None, right_event=None):
         """Insert a new story node into the tree."""
-        print(f"TODO: Insert event {event_number} with description '{description}' into the tree")
-        # TODO: Check if event_number exists in self.nodes, if not create a new StoryNode
-        # TODO: Assign left and right children based on left_event and right_event
-        # TODO: Set root if it's the first node inserted
+        if event_number not in self.nodes:
+            self.nodes[event_number] = StoryNode(event_number, description)
+        node = self.nodes[event_number]
+        node.description = description
+        if left_event is not None:
+            if left_event not in self.nodes:
+                self.nodes[left_event] = StoryNode(left_event, "")
+            node.left = self.nodes[left_event]
+        if right_event is not None:
+            if right_event not in self.nodes:
+                self.nodes[right_event] = StoryNode(right_event, "")
+            node.right = self.nodes[right_event]
+        if self.root is None:
+            self.root = node
 
     def play_game(self):
         """Interactive function that plays the RPG."""
-        print("TODO: Implement the game logic for traversing the decision tree")
-        # TODO: Start from the root node
-        # TODO: Loop through player choices, navigating left or right based on input
-        # TODO: Print event descriptions and ask for player decisions
-        # TODO: End game when reaching a leaf node (where left and right are None)
+        current_node = self.root
+        while current_node:
+            print(current_node.description)
+            if current_node.left is None and current_node.right is None:
+                print("The end.")
+                break
+            choice = input("Enter '1' for left or '2' for right: ").strip()
+            if choice == '1' and current_node.left:
+                current_node = current_node.left
+            elif choice == '2' and current_node.right:
+                current_node = current_node.right
+            else:
+                print("Invalid choice. Try again.")
 
 def load_story(filename, game_tree):
     """Load story from a file and construct the decision tree."""
-    print(f"TODO: Read story file '{filename}' and parse events")
-    # TODO: Open the file and read line by line
-    # TODO: Split each line into event_number, description, left_event, right_event
-    # TODO: Call game_tree.insert() for each event to build the tree
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            parts = line.strip().split('|')
+            event_number = int(parts[0].strip())
+            description = parts[1].strip()
+            left_event = int(parts[2].strip()) if parts[2].strip() != '-1' else None
+            right_event = int(parts[3].strip()) if parts[3].strip() != '-1' else None
+            game_tree.insert(event_number, description, left_event, right_event)
 
 # Main program
 if __name__ == "__main__":
